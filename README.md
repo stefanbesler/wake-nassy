@@ -1,6 +1,6 @@
 # Wake Nassy
 
-A simple web application that allows you to wake up your NAS (Network Attached Storage) device using Wake-on-LAN. The application provides a clean, mobile-friendly interface with real-time status monitoring.
+A simple web application that allows you to wake up a device in your network over the internet. I use it to switch on my NAS over a less power hungry raspberry pi.
 
 ## Requirements
 
