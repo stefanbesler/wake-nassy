@@ -9,9 +9,6 @@ NAS_IP = '<your-ip-address>'
 USERNAME = '<your-username>'
 PASSWORD = '<your-password>'
 
-STATUS_CHECK_INTERVAL = 30000  # 30 seconds
-IP_UPDATE_INTERVAL = 300000    # 5 minutes
-
 app = Flask(__name__)
 app.config['BASIC_AUTH_USERNAME'] = USERNAME
 app.config['BASIC_AUTH_PASSWORD'] = PASSWORD
@@ -216,7 +213,7 @@ main_template = '''
 
             // Check status immediately and then every 30 seconds
             checkStatus();
-            setInterval(checkStatus, {{ STATUS_CHECK_INTERVAL }});
+            setInterval(checkStatus, 30000);
 
             function updateExternalIp() {
                 fetch('/external-ip')
@@ -232,7 +229,7 @@ main_template = '''
 
             // Update external IP immediately and then every 5 minutes
             updateExternalIp();
-            setInterval(updateExternalIp, {{ IP_UPDATE_INTERVAL }});
+            setInterval(updateExternalIp, 300000);
         </script>
     </body>
     </html>
