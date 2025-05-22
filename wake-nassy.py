@@ -2,6 +2,7 @@ from flask import Flask, render_template_string, jsonify
 from flask_basicauth import BasicAuth
 import os
 import subprocess
+import requests
 
 NAS_MAC_ADDRESS = '<your-mac-address>'
 NAS_IP = '<your-ip-address>'
@@ -21,6 +22,7 @@ main_template = '''
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <title>Wake Nassy</title>
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%232196F3'/><path d='M50 30 L50 70 M30 50 L70 50' stroke='white' stroke-width='8' stroke-linecap='round'/></svg>">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
             * {
