@@ -159,6 +159,7 @@ main_template = '''
                 </button>
             </form>
             <div class="message" id="wakeMessage"></div>
+            <div id="externalIp" style="margin-top: 1em; color: #666; font-size: 0.9em;"></div>
         </div>
         <script>
             function checkStatus() {
@@ -166,10 +167,11 @@ main_template = '''
                     .then(response => response.json())
                     .then(data => {
                         const button = document.getElementById('powerButton');
-                        const statusText = document.getElementById('statusText');
+                        const message = document.getElementById('wakeMessage');
                         if (data.status === 'online') {
                             button.classList.remove('offline', 'waking');
                             button.classList.add('online');
+                            message.classList.remove('show');
                         } else {
                             button.classList.remove('online', 'waking');
                             button.classList.add('offline');
@@ -185,6 +187,9 @@ main_template = '''
                 const button = document.getElementById('powerButton');
                 const message = document.getElementById('wakeMessage');
                 
+                // Check if server was already online before sending wake command
+                const wasOnline = button.classList.contains('online');
+                
                 button.classList.remove('online', 'offline');
                 button.classList.add('waking');
                 
@@ -193,13 +198,36 @@ main_template = '''
                 })
                 .then(response => response.text())
                 .then(html => {
-                    checkStatus();
+                    // Only check status immediately if it was already online
+                    if (wasOnline) {
+                        checkStatus();
+                    } else {
+                        // Show message that server is starting
+                        message.textContent = 'Server is starting up...';
+                        message.classList.add('show');
+                    }
                 });
             });
 
             // Check status immediately and then every 30 seconds
             checkStatus();
             setInterval(checkStatus, 30000);
+
+            function updateExternalIp() {
+                fetch('/external-ip')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('externalIp').textContent = `External IP: ${data.ip}`;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('externalIp').textContent = 'Unable to fetch IP';
+                    });
+            }
+
+            // Update external IP immediately and then every 5 minutes
+            updateExternalIp();
+            setInterval(updateExternalIp, 300000);
         </script>
     </body>
     </html>
@@ -228,6 +256,15 @@ def ping():
 def wake():
     os.system(f"wakeonlan {NAS_MAC_ADDRESS}")
     return '', 200
+
+@app.route('/external-ip')
+@basic_auth.required
+def get_external_ip():
+    try:
+        response = requests.get('https://api.ipify.org?format=json')
+        return jsonify({'ip': response.json()['ip']})
+    except Exception as e:
+        return jsonify({'ip': 'Unable to fetch IP'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
